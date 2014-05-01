@@ -13,12 +13,23 @@ namespace RedmineApi\Api;
  */
 class Issues extends Base
 {
+    /**
+     * finds an issue
+     *
+     * @param $id
+     * @return array of issue fields
+     */
     public function find($id) {
         $ret = $this->request("GET", "/issues/$id.json");
 
         return $ret["issue"];
     }
 
+    /**
+     * create an issue
+     * @param array $params
+     * @return array of issue fields
+     */
     public function create(array $params) {
         $ret = $this->request("POST", "/issues.json", ["issue" => $params]);
         return $ret["issue"];

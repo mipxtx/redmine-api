@@ -12,8 +12,15 @@ namespace RedmineApi\Api;
  */
 class IssueRelations extends Base
 {
-    public function findFor($id) {
-        $res = $this->request("GET", "/issues/$id/relations.json");
+
+    /**
+     * finds relations for issue
+     *
+     * @param $issueId
+     * @return array of relations
+     */
+    public function findFor($issueId) {
+        $res = $this->request("GET", "/issues/$issueId/relations.json");
 
         return $res["relations"];
     }
@@ -24,25 +31,27 @@ class IssueRelations extends Base
     private $types = ["relates", "duplicates", "duplicated", "blocks", "blocked", "precedes", "follows"];
 
     /**
-     * @param int $from
-     * @param int $to
+     * create an issue
+     *
+     * @param int $idFrom
+     * @param int $idTo
      * @param string $type
      * @param int $delay
-     * @return array
+     * @return array of relation fields
      */
-    public function create($from, $to, $type, $delay = null) {
+    public function create($idFrom, $idTo, $type, $delay = null) {
 
         if(!in_array($type, $this->types)){
             return false;
         }
 
-        $params = ["issue_to_id" => $to, "relation_type" => $type];
+        $params = ["issue_to_id" => $idTo, "relation_type" => $type];
         if ($delay) {
             $params["delay"] = $delay;
         }
         $res = $this->request(
             "POST",
-            "/issues/$from/relations.json",
+            "/issues/$idFrom/relations.json",
             ["relation" => $params]
         );
 

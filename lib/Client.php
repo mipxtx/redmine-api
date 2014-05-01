@@ -28,7 +28,6 @@ class Client
      * @param string $server_url ie https://redmine.example.com
      * @param string $key redmine api key (http://www.redmine.org/projects/redmine/wiki/Rest_api#Authentication)
      * @param float $timeout request timeout
-     * @throws Exception
      */
     public function __construct($server_url, $key, $timeout = 0.1) {
         $this->server_url = $server_url;
@@ -36,6 +35,13 @@ class Client
         $this->timeout = $timeout;
     }
 
+    /**
+     * @param $method
+     * @param $requestUrl
+     * @param array $data
+     * @return mixed
+     * @throws Exception
+     */
     public function request($method, $requestUrl, array $data = []) {
 
         if ($data) {

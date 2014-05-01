@@ -23,6 +23,15 @@ abstract class Base
         $this->client = $client;
     }
 
+    /**
+     * performs a request
+     *
+     * @param $method
+     * @param $url
+     * @param array $data
+     * @return mixed
+     * @throws \RedmineApi\Exception
+     */
     protected function request($method, $url, $data = []) {
         return $this->client->request($method, $url, $data);
     }
