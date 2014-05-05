@@ -7,12 +7,12 @@ namespace RedmineApi\Api;
 
 /**
  * Class Deploy_RedmineBot_Api_IssueRelations
+ *
  * @see http://www.redmine.org/projects/redmine/wiki/Rest_IssueRelations
  * @package Redmine\Api
  */
 class IssueRelations extends Base
 {
-
     /**
      * finds relations for issue
      *
@@ -41,7 +41,7 @@ class IssueRelations extends Base
      */
     public function create($idFrom, $idTo, $type, $delay = null) {
 
-        if(!in_array($type, $this->types)){
+        if (!in_array($type, $this->types)) {
             return false;
         }
 

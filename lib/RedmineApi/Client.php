@@ -24,6 +24,10 @@ class Client
 
     private $timeout;
 
+    const READ_BLOCK_SIZE = 4096;
+
+    private $rawResponse = "";
+
     /**
      * @param string $server_url ie https://redmine.example.com
      * @param string $key redmine api key (http://www.redmine.org/projects/redmine/wiki/Rest_api#Authentication)
@@ -43,7 +47,29 @@ class Client
      * @throws Exception
      */
     public function request($method, $requestUrl, array $data = []) {
+        return $this->getResponse(
+            $this->sendRequest(
+                $this->getRawRequest($method, $requestUrl, $data)
+            )
+        );
+    }
 
+    public function enableDebug($length = 1024) {
+        $this->debug = true;
+        $this->debugStringLength = $length;
+    }
+
+    public function log($str) {
+        if ($this->debug) {
+            echo (
+                strlen($str) > $this->debugStringLength
+                    ? (mb_strcut($str, 0, $this->debugStringLength) . "...")
+                    : $str
+                ) . "\n";
+        }
+    }
+
+    public function getRawRequest($method, $requestUrl, array $data = []) {
         if ($data) {
             $data = (json_encode($data));
         }
@@ -64,9 +90,14 @@ class Client
 
         $str .= "\r\n";
 
+        return $str;
+    }
+
+    public function sendRequest($request) {
         $scheme = "tcp";
         $port = "80";
-
+        $serverUrl = parse_url($this->server_url);
+        $host = $serverUrl["host"];
         if (isset($serverUrl["port"])) {
             $port = $serverUrl["port"];
             if ($serverUrl["scheme"] == "https") {
@@ -82,53 +113,74 @@ class Client
         }
 
         $uri = "$scheme://$host:$port";
-
-        $h = stream_socket_client($uri, $errno, $errstr, $this->timeout);
         $this->log("connecting to $uri");
-        fwrite($h, $str);
-        $this->log($str);
-        $ret = stream_get_contents($h);
-        $this->log($ret);
-        list($headers, $body) = $this->parseResponse($ret);
+        $h = stream_socket_client($uri, $errno, $errstr, $this->timeout);
+        fwrite($h, $request);
+        $this->log($request);
+
+        return $h;
+    }
+
+    public function readLine($h) {
+        $line = fgets($h);
+        if ($this->debug) {
+            $this->rawResponse .= $line;
+        }
+
+        return trim($line);
+    }
+
+    public function read($h, $length) {
+        $toRead = $length;
+        $out = "";
+        do {
+            $blockLength = ($toRead > self::READ_BLOCK_SIZE) ? self::READ_BLOCK_SIZE : $toRead;
+            $block = fread($h, $blockLength);
+            $toRead -= $blockLength;
+            if ($this->debug) {
+                $this->rawResponse .= $block;
+            }
+            $out .= $block;
+        } while ($toRead != 0);
+
+        return $out;
+    }
+
+    public function getResponse($h) {
+        $headers = [];
+        $line = $this->readLine($h);
+        do {
+            $headers[] = $line;
+            $line = $this->readLine($h);
+        } while ($line);
+        $length = $this->getBlockLenght($h);
+        $body = "";
+        do {
+            $block = $this->read($h, $length);
+            $body .= $block;
+            $this->readLine($h);
+            $length = $this->getBlockLenght($h);
+
+        } while ($length > 0);
+
+        $this->log($this->rawResponse);
+        $this->rawResponse = "";
+
         $result = json_decode($body, 1);
-        if(isset($result["error"])){
+        if (isset($result["error"])) {
             throw new Exception($result["error"]);
         }
+
         return $result;
     }
 
-    public function parseResponse($str) {
-        $arr = explode("\n", $str);
-        $headers = [];
-        $count = count($arr);
-        for ($i = 0; $i < $count; $i++) {
-            $line = array_shift($arr);
-            if (strlen(trim($line)) == 0) {
-                $headers[] = $line;
-                break;
-            }
+    private function getBlockLenght($h){
+        $delimiter = $this->readLine($h);
+        $length = 0;
+        for ($i = 0; $i < strlen($delimiter); $i++) {
+            $char = $delimiter[$i];
+            $length = ($length << 4) + (($char >= '0' && $char <= '9') ? (int)$char : (ord($char) - ord('a') + 10));
         }
-        array_shift($arr);
-
-        do {
-            $line = trim(array_pop($arr));
-        } while ($line !== '0');
-
-        return [$headers, implode("\n", $arr)];
-    }
-
-    public function enableDebug($length = 1024) {
-        $this->debug = true;
-        $this->debugStringLength = $length;
-    }
-
-    public function log($str) {
-        if ($this->debug) {
-            error_log(
-                strlen($str) > $this->debugStringLength
-                    ? (mb_strcut($str, 0, $this->debugStringLength) . "...")
-                    : $str
-            );
-        }
+        return $length;
     }
 }
