@@ -5,7 +5,8 @@
  */
 namespace RedmineApi\Api;
 
-use \RedmineApi\Client as Client;
+use \RedmineApi\HttpClient;
+use \RedmineApi\MysqlClient;
 
 /**
  * Class Base
@@ -15,12 +16,18 @@ use \RedmineApi\Client as Client;
 abstract class Base
 {
     /**
-     * @var \RedmineApi\Client
+     * @var HttpClient
      */
     private $client;
 
-    public function __construct(Client $client) {
+    /**
+     * @var MysqlClient
+     */
+    private $accelerator;
+
+    public function __construct(HttpClient $client,MysqlClient $accelerator = null) {
         $this->client = $client;
+        $this->accelerator = $accelerator;
     }
 
     /**
@@ -34,5 +41,32 @@ abstract class Base
      */
     protected function request($method, $url, $data = []) {
         return $this->client->request($method, $url, $data);
+    }
+
+    public function enableDebug(){
+        $this->client->enableDebug();
+    }
+
+    protected function accelerate($table, array $ids){
+        if($this->accelerator){
+            return $this->accelerator->request($table, $ids);
+        }
+        return false;
+    }
+
+    /**
+     * @param int[] $ids
+     * @param callable $call
+     * @return array
+     */
+    public function multiQuery(array $ids, callable $call){
+        $result = [];
+        foreach($ids as $id){
+            $user = $call($id);
+            if($user){
+                $result[$id] = $user;
+            }
+        }
+        return $result;
     }
 }

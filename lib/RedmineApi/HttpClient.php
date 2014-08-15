@@ -12,7 +12,7 @@ namespace RedmineApi;
  *
  * @package Redmine
  */
-class Client
+class HttpClient
 {
     private $debug = false;
 
@@ -61,21 +61,34 @@ class Client
 
     public function log($str) {
         if ($this->debug) {
+
+            if(php_sapi_name() != "cli"){
+                echo "<pre>";
+            }
             echo (
                 strlen($str) > $this->debugStringLength
                     ? (mb_strcut($str, 0, $this->debugStringLength) . "...")
                     : $str
                 ) . "\n";
+            if(php_sapi_name() != "cli"){
+                echo "</pre>";
+            }
         }
     }
 
     public function getRawRequest($method, $requestUrl, array $data = []) {
-        if ($data) {
-            $data = (json_encode($data));
-        }
 
         $serverUrl = parse_url($this->server_url);
         $host = $serverUrl["host"];
+
+        if(in_array($method, ["GET", "DELETE"]) && $data){
+            $params = [];
+            foreach($data as $key => $value){
+                $params[] = urlencode($key) . "=" . urlencode($value);
+            }
+            $requestUrl .= "?" . implode("&",$params);
+
+        }
 
         $str = "{$method} {$requestUrl} HTTP/1.1\r\n" .
             "Host: {$host}\r\n" .
@@ -83,6 +96,7 @@ class Client
             "X-Redmine-API-Key: {$this->key}\r\n";
 
         if (in_array($method, ["POST", "PUT"])) {
+            $data = (json_encode($data));
             $str .= "Content-Type: application/json\r\n";
             $str .= "Content-Length: " . strlen($data) . "\r\n\r\n";
             $str .= $data . "\r\n";
@@ -135,13 +149,15 @@ class Client
         $out = "";
         do {
             $blockLength = ($toRead > self::READ_BLOCK_SIZE) ? self::READ_BLOCK_SIZE : $toRead;
+
             $block = fread($h, $blockLength);
             $toRead -= $blockLength;
+
             if ($this->debug) {
                 $this->rawResponse .= $block;
             }
             $out .= $block;
-        } while ($toRead != 0);
+        } while ($toRead > 0);
 
         return $out;
     }
