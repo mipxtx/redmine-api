@@ -11,15 +11,15 @@ example:
 
 ```php
 use RedmineApi\Factory;
-use RedmineApi\Client;
+use RedmineApi\HttpClient;
 use RedmineApi\MysqlClient;
 
-$client = new \RedmineApi\Client(
+$client = new \RedmineApi\HttpClient(
     "https://redmine.example.com",             // server url
     "bbb09b217bf17a905a16caa4ce7d4a23a3a0036d" // redmine api key
 );
 
-$acc = new MysqlClient("example.com", "user", "pass"); // mysql client to speed fetch
+$acc = new MysqlClient("example.com", "user", "pass", "dbname"); // mysql client to speed fetch
 
 $factory = new Factory($c, $acc);
 
