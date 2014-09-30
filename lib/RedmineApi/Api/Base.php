@@ -43,6 +43,9 @@ abstract class Base
         return $this->client->request($method, $url, $data);
     }
 
+    /**
+     * enable debug
+     */
     public function enableDebug(){
         $this->client->enableDebug();
     }

@@ -147,18 +147,15 @@ class HttpClient
     public function read($h, $length) {
         $toRead = $length;
         $out = "";
-        do {
+        while ($toRead > 0){
             $blockLength = ($toRead > self::READ_BLOCK_SIZE) ? self::READ_BLOCK_SIZE : $toRead;
-
             $block = fread($h, $blockLength);
             $toRead -= $blockLength;
-
             if ($this->debug) {
                 $this->rawResponse .= $block;
             }
             $out .= $block;
-        } while ($toRead > 0);
-
+        }
         return $out;
     }
 

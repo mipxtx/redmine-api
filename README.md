@@ -38,6 +38,7 @@ Now implemented:
  * Issues:
     * find issue
     * create issue
+    * update issue
     * findByIds (accellerate with mysql)
 
  * Issue Relations:

@@ -20,8 +20,8 @@ class Issues extends Base
      * @param $id
      * @return array of issue fields
      */
-    public function find($id) {
-        $ret = $this->request("GET", "/issues/$id.json");
+    public function find($id, $params = []) {
+        $ret = $this->request("GET", "/issues/$id.json", $params);
 
         return $ret["issue"];
     }
@@ -38,6 +38,23 @@ class Issues extends Base
         return $ret["issue"];
     }
 
+    /**
+     * update an issue
+     *
+     * @param $id
+     * @param array $params
+     * @return mixed
+     */
+    public function update($id, array $params) {
+        return $this->request("PUT", "/issues/$id.json", ["issue" => $params]);
+    }
+
+    /**
+     * issues multiget
+     *
+     * @param array $ids
+     * @return array|bool
+     */
     public function findByIds(array $ids) {
         $result = $this->accelerate("issues", $ids);
         if ($result === false) {

@@ -8,6 +8,12 @@ namespace RedmineApi\Api;
 
 class Users extends Base
 {
+    /**
+     * find user by id
+     *
+     * @param $id
+     * @return null
+     */
     public function find($id) {
         $user = $this->request("GET", "/users/$id.json");
         if ($user["user"]) {
@@ -17,6 +23,11 @@ class Users extends Base
         return null;
     }
 
+    /**
+     * find user by login
+     * @param $login
+     * @return null
+     */
     public function findByLogin($login) {
         $users = $this->request("GET", "/users.json", ["name" => $login]);
 
@@ -27,10 +38,14 @@ class Users extends Base
         return null;
     }
 
+    /**
+     * multiget for users
+     *
+     * @param array $ids
+     * @return array|bool
+     */
     public function findByIds(array $ids) {
         $result = $this->accelerate("users", $ids);
-
-
 
         if ($result === false) {
             $result = $this->multiQuery(
