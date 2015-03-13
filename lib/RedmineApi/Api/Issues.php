@@ -56,16 +56,6 @@ class Issues extends Base
      * @return array|bool
      */
     public function findByIds(array $ids) {
-        $result = $this->accelerate("issues", $ids);
-        if ($result === false) {
-            $result = $this->multiQuery(
-                $ids,
-                function ($id) {
-                    return $this->find($id);
-                }
-            );
-        }
-
-        return $result;
+        return $this->multiAccelerate("issues", $ids, function ($id) {return $this->find($id);});
     }
 }

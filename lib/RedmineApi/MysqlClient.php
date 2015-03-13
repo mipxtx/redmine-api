@@ -14,25 +14,22 @@ class MysqlClient
         $this->connect = new \mysqli($host, $username, $passwd, $dbname);
     }
 
-    public function request($table, array $ids) {
+    public function request(array $ids, $table, $field = "id") {
         if (!$ids) {
             return [];
         }
 
-        $map = array_map(
-            function ($i) {
-                return (int)$i;
-            },
-            $ids
-        );
-        $sql = "Select * from $table where id in (" . implode(",", $map) . ")";
+        $map = array_map(function ($i) { return is_int($i) ? $i : "'$i'";}, $ids);
+
+        $sql = "SELECT * FROM {$table} WHERE {$field} IN (" . implode(",", $map) . ")";
+
         $result = $this->connect->query($sql);
         if (!$result) {
             return false;
         }
         $out = [];
         foreach ($result->fetch_all(MYSQLI_ASSOC) as $row) {
-            $out[$row["id"]] = $row;
+            $out[$row[$field]] = $row;
         }
 
         return $out;

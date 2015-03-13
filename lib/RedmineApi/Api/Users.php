@@ -45,16 +45,14 @@ class Users extends Base
      * @return array|bool
      */
     public function findByIds(array $ids) {
-        $result = $this->accelerate("users", $ids);
+        return $this->multiAccelerate("users", $ids, function ($id) { return $this->find($id); });
+    }
 
-        if ($result === false) {
-            $result = $this->multiQuery(
-                $ids,
-                function ($id) {
-                    return $this->find($id);
-                }
-            );
-        }
-        return $result;
+    /**
+     * @param array $logins
+     * @return array
+     */
+    public function findByLogins(array $logins){
+        return $this->multiAccelerate("users", $logins, function ($id) { return $this->findByLogin($id); }, "login");
     }
 }

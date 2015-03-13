@@ -49,3 +49,4 @@ Now implemented:
     * find (by id)
     * findByLogin
     * findByIds (accellerate with mysql)
+    * findByLogins (accellerate with mysql)

@@ -50,9 +50,9 @@ abstract class Base
         $this->client->enableDebug();
     }
 
-    protected function accelerate($table, array $ids){
+    protected function accelerate($table, array $ids, $field='id'){
         if($this->accelerator){
-            return $this->accelerator->request($table, $ids);
+            return $this->accelerator->request($ids, $table, $field);
         }
         return false;
     }
@@ -69,6 +69,15 @@ abstract class Base
             if($user){
                 $result[$id] = $user;
             }
+        }
+        return $result;
+    }
+
+    public function multiAccelerate($table, array $ids, callable $call, $field="id"){
+        $result = $this->accelerate($table, $ids, $field);
+
+        if ($result === false) {
+            $result = $this->multiQuery($ids, $call);
         }
         return $result;
     }
