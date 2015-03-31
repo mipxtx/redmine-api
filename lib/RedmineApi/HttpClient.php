@@ -129,6 +129,10 @@ class HttpClient
         $uri = "$scheme://$host:$port";
         $this->log("connecting to $uri");
         $h = stream_socket_client($uri, $errno, $errstr, $this->timeout);
+
+        $timeoutSec = floor($this->timeout);
+        $timeoutMsec = $this->timeout * 1000000;
+        stream_set_timeout($h,$timeoutSec, $timeoutMsec);
         fwrite($h, $request);
         $this->log($request);
 
