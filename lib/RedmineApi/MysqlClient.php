@@ -8,10 +8,26 @@ namespace RedmineApi;
 
 class MysqlClient
 {
+    private $host;
+    private $user;
+    private $passwd;
+    private $dbname;
+
     private $connect;
 
     function __construct($host, $username, $passwd, $dbname) {
-        $this->connect = new \mysqli($host, $username, $passwd, $dbname);
+        $this->host = $host;
+        $this->user = $username;
+        $this->passwd = $passwd;
+        $this->dbname = $dbname;
+    }
+
+    private function getConnect(){
+        if(!$this->connect){
+            $this->connect = new \mysqli($this->host, $this->username, $this->passwd, $this->dbname);
+            $this->connect->set_charset("utf8");
+        }
+        return $this->connect;
     }
 
     public function request(array $ids, $table, $field = "id") {
@@ -23,7 +39,7 @@ class MysqlClient
 
         $sql = "SELECT * FROM {$table} WHERE {$field} IN (" . implode(",", $map) . ")";
 
-        $result = $this->connect->query($sql);
+        $result = $this->getConnect()->query($sql);
         if (!$result) {
             return false;
         }
