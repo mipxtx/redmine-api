@@ -24,7 +24,7 @@ class MysqlClient
 
     private function getConnect(){
         if(!$this->connect){
-            $this->connect = new \mysqli($this->host, $this->username, $this->passwd, $this->dbname);
+            $this->connect = new \mysqli($this->host, $this->user, $this->passwd, $this->dbname);
             $this->connect->set_charset("utf8");
         }
         return $this->connect;
