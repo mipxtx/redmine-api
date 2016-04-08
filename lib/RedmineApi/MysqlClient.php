@@ -38,7 +38,7 @@ class MysqlClient
         $map = array_map(function ($i) { return is_int($i) ? $i : "'$i'";}, $ids);
 
         if ($table == 'users') {
-            $from = "t.*, e.address FROM users as t left join email_addresses e on e.user_id=t.id";
+            $from = "t.*, e.address as mail FROM users as t left join email_addresses e on e.user_id=t.id";
         } else {
             $from = "* FROM {$table} as t";
         }
