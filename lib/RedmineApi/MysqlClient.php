@@ -37,7 +37,13 @@ class MysqlClient
 
         $map = array_map(function ($i) { return is_int($i) ? $i : "'$i'";}, $ids);
 
-        $sql = "SELECT * FROM {$table} WHERE {$field} IN (" . implode(",", $map) . ")";
+        if ($table == 'users') {
+            $from = "users as t left join email_addresses e on e.user_id=t.id";
+        } else {
+            $from = "{$table} as t";
+        }
+
+        $sql = "SELECT * FROM {$from} WHERE t.{$field} IN (" . implode(",", $map) . ")";
 
         $result = $this->getConnect()->query($sql);
         if (!$result) {
