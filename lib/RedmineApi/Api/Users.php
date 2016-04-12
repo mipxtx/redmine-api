@@ -55,4 +55,12 @@ class Users extends Base
     public function findByLogins(array $logins){
         return $this->multiAccelerate("users", $logins, function ($id) { return $this->findByLogin($id); }, "login");
     }
+    
+    /**
+     * @param array $emails
+     * @return array
+     */
+    public function findByEmails(array $emails){
+        return $this->multiAccelerate("users", $emails, function ($id) { return $this->findByLogin($id); }, "email");
+    }
 }
