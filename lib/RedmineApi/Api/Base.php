@@ -70,15 +70,33 @@ abstract class Base
                 $result[$id] = $user;
             }
         }
+
         return $result;
     }
 
-    public function multiAccelerate($table, array $ids, callable $call, $field="id"){
+    public function multiAccelerate($table, array $ids, callable $call, $field = "id") {
         $result = $this->accelerate($table, $ids, $field);
 
         if ($result === false) {
             $result = $this->multiQuery($ids, $call);
         }
+
         return $result;
+    }
+
+    protected function query($table, $where, $field = 'id') {
+        if ($this->accelerator) {
+            return $this->accelerator->query($table, $where, $field);
+        }
+
+        return false;
+    }
+
+    protected function queryIn($table, $key, $list, $field = 'id') {
+        if ($this->accelerator) {
+            return $this->accelerator->queryIn($table, $key, $list, $field);
+        }
+
+        return false;
     }
 }

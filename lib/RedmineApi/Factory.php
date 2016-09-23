@@ -8,6 +8,7 @@ namespace RedmineApi;
 
 use RedmineApi\Api\IssueRelations;
 use RedmineApi\Api\Issues;
+use RedmineApi\Api\TimeEntries;
 use RedmineApi\Api\Users;
 
 class Factory
@@ -31,5 +32,9 @@ class Factory
 
     public function getUsers() {
         return new Users($this->client, $this->acc);
+    }
+
+    public function getTimeEntities(){
+        return new TimeEntries($this->client, $this->acc);
     }
 } 
