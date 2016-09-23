@@ -21,7 +21,7 @@ $client = new \RedmineApi\HttpClient(
 
 $acc = new MysqlClient("example.com", "user", "pass", "dbname"); // mysql client to speed fetch
 
-$factory = new Factory($c, $acc);
+$factory = new Factory($client, $acc);
 
 $uids = [];
 foreach ($factory->getIssues()->findByIds([1, 2, 3]) as $issue) {  // multiget of given issues
