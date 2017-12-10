@@ -12,7 +12,7 @@ class HttpClient
 {
     private $debug = false;
 
-    private $debugStringLength = 1000;
+    private $debugStringLength = 10000000;
 
     private $key;
 
@@ -66,7 +66,7 @@ class HttpClient
                 ? (mb_strcut($str, 0, $this->debugStringLength) . "...")
                 : $str
             );
-            //echo "\n";
+            echo "\n";
             if (php_sapi_name() != "cli") {
                 //echo "</pre>";
             }

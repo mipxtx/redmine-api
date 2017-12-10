@@ -4,7 +4,7 @@
  * @date: 16.08.14
  */
 
-namespace RedmineApi;
+namespace RedmineApi\Sql;
 
 class MysqlClient
 {
@@ -27,6 +27,7 @@ class MysqlClient
 
     private function getConnect() {
         if (!$this->connect) {
+
             $this->connect = new \mysqli($this->host, $this->user, $this->passwd, $this->dbname);
             $this->connect->set_charset("utf8");
         }
@@ -52,7 +53,18 @@ class MysqlClient
             $from = "* FROM {$table} as t";
         }
 
-        $sql = "SELECT {$from} WHERE t.{$field} IN (" . implode(",", $map) . ")";
+        return $this->perform($from, $field, "t.{$field} IN (" . implode(",", $map) . ")");
+    }
+
+    private function perform($from, $field, $where = "", $order = "") {
+        $sql = "select {$from}";
+        if ($where) {
+            $sql .= " WHERE {$where}";
+        }
+
+        if ($order) {
+            $sql .= " ORDER BY {$order}";
+        }
 
         $result = $this->getConnect()->query($sql);
         if (!$result) {
@@ -66,26 +78,18 @@ class MysqlClient
         return $out;
     }
 
-    public function query($table, $where, $index = 'id') {
-        $sql = "SELECT * FROM {$table} WHERE {$where}";
-
-        echo $sql . "\n";
-
-        $result = $this->getConnect()->query($sql);
-        if (!$result) {
-            return false;
-        }
-        $out = [];
-        foreach ($result->fetch_all(MYSQLI_ASSOC) as $row) {
-            $out[$row[$index]] = $row;
-        }
-
-        return $out;
+    public function getAll($table, $where = "", $order = "") {
+        return $this->perform("* FROM {$table}", 'id', $where, $order);
     }
 
-    public function queryIn($table, $key, $list, $index = 'id'){
-        $where = $key . " IN ('" . implode("','", $list) . "')";
+    public function update($table, int $id, array $set) {
 
-        return $this->query($table, $where, $index);
+        $params = [];
+        foreach ($set as $key => $value) {
+            $params[] = "{$key}='$value'";
+        }
+
+        $sql = "update {$table} set " . implode(', ', $params) . " WHERE id=$id";
+        $this->getConnect()->query($sql);
     }
 }

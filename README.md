@@ -4,7 +4,7 @@ php Redmine Api
 A php implementation of redmine rest api:
 [http://www.redmine.org/projects/redmine/wiki/Rest_api](http://www.redmine.org/projects/redmine/wiki/Rest_api "rest api")
 
-Can use mysql dierct access to accellerate multigets
+Can use mysql direct access to accellerate multigets
 
 example:
 
@@ -19,7 +19,7 @@ $client = new \RedmineApi\HttpClient(
     "bbb09b217bf17a905a16caa4ce7d4a23a3a0036d" // redmine api key
 );
 
-$acc = new MysqlClient("example.com", "user", "pass", "dbname"); // mysql client to speed fetch
+$acc = new MysqlClient("example.com", "user", "pass", "dbname"); // mysql client direct access
 
 $factory = new Factory($client, $acc);
 
@@ -39,7 +39,8 @@ Now implemented:
     * find issue
     * create issue
     * update issue
-    * findByIds (accellerate with mysql)
+    * findByIds (mysql)
+    * findByConditions (mysql select where/order)
 
  * Issue Relations:
     * findFor (issue)
@@ -48,5 +49,16 @@ Now implemented:
  * Users:
     * find (by id)
     * findByLogin
-    * findByIds (accellerate with mysql)
-    * findByLogins (accellerate with mysql)
+    * findByIds (mysql)
+    * findByLogins (mysql)
+ 
+MySQL only 
+---------
+ * Statuses 
+    * findAll - list of statuses
+
+ * Emails
+    * findByUserIds
+    
+ * Sprints (Scrum plugin)
+    * findAll - list of sprints

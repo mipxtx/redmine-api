@@ -3,6 +3,7 @@
  * @author: mix
  * @date: 01.05.14
  */
+
 namespace RedmineApi\Api;
 
 /**
@@ -56,6 +57,28 @@ class Issues extends Base
      * @return array|bool
      */
     public function findByIds(array $ids) {
-        return $this->multiAccelerate("issues", $ids, function ($id) {return $this->find($id);});
+        return $this->multiAccelerate(
+            "issues",
+            $ids,
+            function ($id) {
+                return $this->find($id);
+            }
+        );
+    }
+
+    /**
+     * @param SqlCondition[] $conditions
+     */
+    public function findByConditions(array $conditions, $order = "") {
+        $where = [];
+        foreach ($conditions as $cond) {
+            $where[] = $cond->toString();
+        }
+
+        return $this->getAccellerator()->getAll("issues", implode(" AND ", $where), $order);
+    }
+
+    public function updatePosition($id, $position) {
+        $this->getAccellerator()->update('issues', $id, ['position' => (int)$position]);
     }
 }

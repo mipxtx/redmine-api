@@ -8,8 +8,6 @@ namespace RedmineApi\Api;
 
 class Users extends Base
 {
-    const TABLE = 'users';
-
     /**
      * find user by id
      *
@@ -47,22 +45,22 @@ class Users extends Base
      * @return array|bool
      */
     public function findByIds(array $ids) {
-        return $this->multiAccelerate(self::TABLE, $ids, function ($id) { return $this->find($id); });
+        return $this->multiAccelerate("users", $ids, function ($id) { return $this->find($id); });
     }
 
     /**
      * @param array $logins
      * @return array
      */
-    public function findByLogins(array $logins) {
-        return $this->multiAccelerate(self::TABLE, $logins, function ($id) { return $this->findByLogin($id); }, "login");
+    public function findByLogins(array $logins){
+        return $this->multiAccelerate("users", $logins, function ($id) { return $this->findByLogin($id); }, "login");
     }
-
+    
     /**
      * @param array $emails
      * @return array
      */
-    public function findByEmails(array $emails) {
-        return $this->multiAccelerate(self::TABLE, $emails, function ($id) { return $this->findByLogin($id); }, "email");
+    public function findByEmails(array $emails){
+        return $this->multiAccelerate("users", $emails, function ($id) { return $this->findByLogin($id); }, "email");
     }
 }

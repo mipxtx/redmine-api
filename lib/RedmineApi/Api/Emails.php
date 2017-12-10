@@ -12,7 +12,8 @@ class Emails extends Base
 {
     const TABLE = 'email_addresses';
 
-    public function findBuUserIds(array $ids) {
-        $this->queryIn(self::TABLE, 'user_id', $ids, 'user_id');
+    public function findByUserIds(array $ids) {
+
+        $this->getAccellerator()->getAll(self::TABLE, 'user_id IN (' . implode(",", $ids), 'user_id');
     }
 }
