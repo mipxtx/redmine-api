@@ -11,6 +11,7 @@ use RedmineApi\Api\Issues;
 use RedmineApi\Api\Sprints;
 use RedmineApi\Api\Statuses;
 use RedmineApi\Api\Users;
+use RedmineApi\Sql\MysqlClient;
 
 class Factory
 {
@@ -35,11 +36,11 @@ class Factory
         return new Users($this->client, $this->acc);
     }
 
-    public function getSprints(){
+    public function getSprints() {
         return new Sprints($this->client, $this->acc);
     }
-    
-    public function getStatuses(){
+
+    public function getStatuses() {
         return new Statuses($this->client, $this->acc);
     }
 } 

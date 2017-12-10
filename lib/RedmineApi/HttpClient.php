@@ -1,4 +1,5 @@
 <?php
+
 namespace RedmineApi;
 
 /**
@@ -25,8 +26,7 @@ class HttpClient
      * @param string $key redmine api key (http://www.redmine.org/projects/redmine/wiki/Rest_api#Authentication)
      * @param float $timeout request timeout
      */
-    public function __construct($server_url, $key, $timeout = 0.1)
-    {
+    public function __construct($server_url, $key, $timeout = 0.1) {
         $this->server_url = $server_url;
         $this->key = $key;
         $this->timeout = $timeout;
@@ -39,8 +39,7 @@ class HttpClient
      * @return mixed
      * @throws Exception
      */
-    public function request($method, $requestUrl, array $data = [])
-    {
+    public function request($method, $requestUrl, array $data = []) {
         $requestUrl = $this->getRequestUrl($method, $requestUrl, $data);
 
         $ch = $this->prepareCurl($method, $requestUrl, $data);
@@ -48,20 +47,18 @@ class HttpClient
         return $this->getResponse($ch);
     }
 
-    public function enableDebug($length = 1024)
-    {
+    public function enableDebug($length = 1024) {
         $this->debug = true;
         $this->debugStringLength = $length;
     }
 
-    public function log($str)
-    {
+    public function log($str) {
         if ($this->debug) {
 
             if (php_sapi_name() != "cli") {
                 //echo "<pre>";
             }
-            echo (
+            echo(
             strlen($str) > $this->debugStringLength
                 ? (mb_strcut($str, 0, $this->debugStringLength) . "...")
                 : $str
@@ -73,8 +70,7 @@ class HttpClient
         }
     }
 
-    public function getRequestUrl($method, $requestUrl, array $data = [])
-    {
+    public function getRequestUrl($method, $requestUrl, array $data = []) {
         if ($method == 'GET' && $data) {
             $params = [];
             foreach ($data as $key => $value) {
@@ -86,8 +82,7 @@ class HttpClient
         return $this->server_url . $requestUrl;
     }
 
-    public function prepareCurl($method, $requestUrl, array $data = [])
-    {
+    public function prepareCurl($method, $requestUrl, array $data = []) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $requestUrl);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $this->timeout * 1000000);
@@ -107,20 +102,23 @@ class HttpClient
 
         $serverUrl = parse_url($this->server_url);
         if ($serverUrl['scheme'] == 'https') {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         }
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'X-Redmine-API-Key: ' . $this->key
-        ]);
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            [
+                'Content-Type: application/json',
+                'X-Redmine-API-Key: ' . $this->key
+            ]
+        );
 
         return $ch;
     }
 
-    public function getResponse($ch)
-    {
+    public function getResponse($ch) {
         $body = curl_exec($ch);
         curl_close($ch);
 

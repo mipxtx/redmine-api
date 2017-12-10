@@ -3,6 +3,7 @@
  * @author: mix
  * @date: 01.05.14
  */
+
 namespace RedmineApi\Api;
 
 use \RedmineApi\HttpClient;
@@ -25,7 +26,7 @@ abstract class Base
      */
     private $accelerator;
 
-    public function __construct(HttpClient $client,MysqlClient $accelerator = null) {
+    public function __construct(HttpClient $client, MysqlClient $accelerator = null) {
         $this->client = $client;
         $this->accelerator = $accelerator;
     }
@@ -46,14 +47,15 @@ abstract class Base
     /**
      * enable debug
      */
-    public function enableDebug(){
+    public function enableDebug() {
         $this->client->enableDebug();
     }
 
-    protected function accelerate($table, array $ids, $field='id'){
-        if($this->accelerator){
+    protected function accelerate($table, array $ids, $field = 'id') {
+        if ($this->accelerator) {
             return $this->accelerator->request($ids, $table, $field);
         }
+
         return false;
     }
 
@@ -62,27 +64,29 @@ abstract class Base
      * @param callable $call
      * @return array
      */
-    public function multiQuery(array $ids, callable $call){
+    public function multiQuery(array $ids, callable $call) {
         $result = [];
-        foreach($ids as $id){
+        foreach ($ids as $id) {
             $user = $call($id);
-            if($user){
+            if ($user) {
                 $result[$id] = $user;
             }
         }
+
         return $result;
     }
 
-    public function multiAccelerate($table, array $ids, callable $call, $field="id"){
+    public function multiAccelerate($table, array $ids, callable $call, $field = "id") {
         $result = $this->accelerate($table, $ids, $field);
 
         if ($result === false) {
             $result = $this->multiQuery($ids, $call);
         }
+
         return $result;
     }
 
-    public function getAccellerator(){
+    public function getAccellerator() {
         return $this->accelerator;
     }
 }

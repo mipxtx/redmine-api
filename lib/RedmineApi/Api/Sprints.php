@@ -18,9 +18,10 @@ class Sprints extends Base
      */
     public function findAll($active = true) {
         $where = "";
-        if($active){
+        if ($active) {
             $where = "status='open'";
         }
-        return $this->getAccellerator()->getAll('sprints',$where);
+
+        return $this->getAccellerator()->getAll('sprints', $where);
     }
 }

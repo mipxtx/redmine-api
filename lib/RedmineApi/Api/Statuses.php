@@ -10,8 +10,7 @@ namespace RedmineApi\Api;
 
 class Statuses extends Base
 {
-    public function findAll(){
+    public function findAll() {
         return $this->getAccellerator()->getAll('issue_statuses');
     }
-
 }

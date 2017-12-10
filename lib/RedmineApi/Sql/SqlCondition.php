@@ -29,7 +29,7 @@ class SqlCondition
         $this->cond = $cond;
     }
 
-    public function toString(){
+    public function toString() {
         return "{$this->name} {$this->cond} {$this->value}";
     }
 }

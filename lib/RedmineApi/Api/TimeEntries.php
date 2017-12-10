@@ -24,6 +24,6 @@ class TimeEntries extends Base
             $where .= " AND spent_on < '{$end}'";
         }
 
-        return $this->query(self::TABLE, $where);
+        return $this->getAccellerator()->getAll(self::TABLE, $where);
     }
 }

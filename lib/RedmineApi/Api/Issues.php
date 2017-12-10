@@ -6,6 +6,8 @@
 
 namespace RedmineApi\Api;
 
+use RedmineApi\Sql\SqlCondition;
+
 /**
  * Class Issues
  *

@@ -12,7 +12,7 @@ example:
 ```php
 use RedmineApi\Factory;
 use RedmineApi\HttpClient;
-use RedmineApi\MysqlClient;
+use RedmineApi\Sql\MysqlClient;
 
 $client = new \RedmineApi\HttpClient(
     "https://redmine.example.com",             // server url
