@@ -8,12 +8,13 @@
 
 namespace RedmineApi\Api;
 
+use RedmineApi\Sql\SqlWhere;
+
 class Emails extends Base
 {
     const TABLE = 'email_addresses';
 
     public function findByUserIds(array $ids) {
-
-        $this->getAccellerator()->getAll(self::TABLE, 'user_id IN (' . implode(",", $ids), 'user_id');
+        $this->getAccellerator()->getAll(self::TABLE, new SqlWhere('user_id', "in",$ids));
     }
 }

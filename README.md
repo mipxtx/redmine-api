@@ -60,5 +60,7 @@ MySQL only
  * Emails
     * findByUserIds
     
- * Sprints (Scrum plugin)
-    * findAll - list of sprints
+ * CustomFields
+    * getField - field possible values
+    * getVBalues (by issueIds)
+    * updateValues

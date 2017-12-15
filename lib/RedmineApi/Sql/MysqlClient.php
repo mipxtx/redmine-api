@@ -18,6 +18,8 @@ class MysqlClient
 
     private $connect;
 
+    private $logQueries = false;
+
     function __construct($host, $username, $passwd, $dbname) {
         $this->host = $host;
         $this->user = $username;
@@ -28,8 +30,13 @@ class MysqlClient
     private function getConnect() {
         if (!$this->connect) {
 
+            if($this->logQueries) {
+                error_log("connecting {$this->host}");
+            }
+
             $this->connect = new \mysqli($this->host, $this->user, $this->passwd, $this->dbname);
             $this->connect->set_charset("utf8");
+            $this->connect->query("USE " . $this->dbname);
         }
 
         return $this->connect;
@@ -40,56 +47,70 @@ class MysqlClient
             return [];
         }
 
-        $map = array_map(
-            function ($i) {
-                return is_int($i) ? $i : "'$i'";
-            },
-            $ids
-        );
-
         if ($table == 'users') {
             $from = "t.*, e.address as mail FROM users as t left join email_addresses e on e.user_id=t.id";
         } else {
             $from = "* FROM {$table} as t";
         }
 
-        return $this->perform($from, $field, "t.{$field} IN (" . implode(",", $map) . ")");
+        return $this->perform($from, $field, new SqlWhere("t.{$field}", 'in', $ids));
     }
 
-    private function perform($from, $field, $where = "", $order = "") {
+    private function perform($from, $key, SqlWhere $where = null, $order = "") {
+
         $sql = "select {$from}";
         if ($where) {
-            $sql .= " WHERE {$where}";
+            $sql .= " WHERE " . $where->toString($this->getConnect());
         }
 
         if ($order) {
             $sql .= " ORDER BY {$order}";
         }
+        if ($this->logQueries) {
+            error_log($sql);
+        }
+        $conect = $this->getConnect();
+        $result = $conect->query($sql);
 
-        $result = $this->getConnect()->query($sql);
+        if ($conect->error) {
+            throw new \Exception('mysql error ' . $conect->error . "\nat query " . $sql);
+        }
         if (!$result) {
             return false;
         }
+
         $out = [];
-        foreach ($result->fetch_all(MYSQLI_ASSOC) as $row) {
-            $out[$row[$field]] = $row;
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
+
+        foreach ($rows as $row) {
+            $out[$row[$key]] = $row;
         }
 
         return $out;
     }
 
-    public function getAll($table, $where = "", $order = "") {
-        return $this->perform("* FROM {$table}", 'id', $where, $order);
+    public function getAll($table, SqlWhere $where = null, $fields = "*", $order = "") {
+        $from = $fields . " FROM {$table}";
+
+        return $this->perform($from, 'id', $where, $order);
     }
 
     public function update($table, int $id, array $set) {
 
+        $this->updateByCondition($table, SqlWhere::_new('id', '=', $id), $set);
+    }
+
+    public function updateByCondition($table, SqlWhere $where, array $set) {
         $params = [];
         foreach ($set as $key => $value) {
             $params[] = "{$key}='$value'";
         }
+        $sql = "update {$table} set " . implode(', ', $params) . " WHERE " . $where->toString($this->getConnect());
 
-        $sql = "update {$table} set " . implode(', ', $params) . " WHERE id=$id";
+        if ($this->logQueries) {
+            error_log($sql);
+        }
+
         $this->getConnect()->query($sql);
     }
 }

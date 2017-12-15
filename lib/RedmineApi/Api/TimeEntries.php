@@ -8,20 +8,22 @@
 
 namespace RedmineApi\Api;
 
+use RedmineApi\Sql\SqlWhere;
+
 class TimeEntries extends Base
 {
     const TABLE = 'time_entries';
 
     public function find($userId, $start = null, $end = null) {
 
-        $where = "user_id={$userId}";
+        $where = new SqlWhere('user_id', 'in', $userId);
 
         if ($start) {
-            $where .= " AND spent_on > '{$start}'";
+            $where = $where->_and('spent_on', ">", $start);
         }
 
         if ($end) {
-            $where .= " AND spent_on < '{$end}'";
+            $where = $where->_and('spent_on', ">", $end);
         }
 
         return $this->getAccellerator()->getAll(self::TABLE, $where);

@@ -6,9 +6,9 @@
 
 namespace RedmineApi;
 
+use RedmineApi\Api\CustomFields;
 use RedmineApi\Api\IssueRelations;
 use RedmineApi\Api\Issues;
-use RedmineApi\Api\Sprints;
 use RedmineApi\Api\Statuses;
 use RedmineApi\Api\Users;
 use RedmineApi\Sql\MysqlClient;
@@ -36,11 +36,11 @@ class Factory
         return new Users($this->client, $this->acc);
     }
 
-    public function getSprints() {
-        return new Sprints($this->client, $this->acc);
-    }
-
     public function getStatuses() {
         return new Statuses($this->client, $this->acc);
+    }
+
+    public function getCustomFields(){
+        return new CustomFields($this->client, $this->acc);
     }
 } 

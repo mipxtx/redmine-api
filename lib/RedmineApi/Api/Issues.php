@@ -6,7 +6,7 @@
 
 namespace RedmineApi\Api;
 
-use RedmineApi\Sql\SqlCondition;
+use RedmineApi\Sql\SqlWhere;
 
 /**
  * Class Issues
@@ -69,15 +69,18 @@ class Issues extends Base
     }
 
     /**
-     * @param SqlCondition[] $conditions
+     * @param SqlWhere $where
+     * @param string $fields
+     * @param string $join
+     * @param string $order
+     * @return array|bool
      */
-    public function findByConditions(array $conditions, $order = "") {
-        $where = [];
-        foreach ($conditions as $cond) {
-            $where[] = $cond->toString();
+    public function findByConditions(SqlWhere $where, $fields = "*", $join = "", $order = ""){
+        $table = "issues";
+        if($join){
+            $table .= " ". $join;
         }
-
-        return $this->getAccellerator()->getAll("issues", implode(" AND ", $where), $order);
+        return $this->getAccellerator()->getAll($table, $where, $fields, $order);
     }
 
     public function updatePosition($id, $position) {

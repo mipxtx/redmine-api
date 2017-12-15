@@ -89,4 +89,6 @@ abstract class Base
     public function getAccellerator() {
         return $this->accelerator;
     }
+
+
 }
