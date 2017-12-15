@@ -75,12 +75,13 @@ class Issues extends Base
      * @param string $order
      * @return array|bool
      */
-    public function findByConditions(SqlWhere $where, $fields = "*", $join = "", $order = ""){
-        $table = "issues";
-        if($join){
-            $table .= " ". $join;
+    public function findByConditions(SqlWhere $where, $fields = "*", $join = "", $order = "", $groupBy = "") {
+        $table = "issues i";
+        if ($join) {
+            $table .= " " . $join;
         }
-        return $this->getAccellerator()->getAll($table, $where, $fields, $order);
+
+        return $this->getAccellerator()->getAll($table, $where, $fields, $order, $groupBy);
     }
 
     public function updatePosition($id, $position) {

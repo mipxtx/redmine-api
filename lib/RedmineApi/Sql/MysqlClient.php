@@ -29,11 +29,7 @@ class MysqlClient
 
     private function getConnect() {
         if (!$this->connect) {
-
-            if($this->logQueries) {
-                error_log("connecting {$this->host}");
-            }
-
+            $this->log("connecting {$this->host}");
             $this->connect = new \mysqli($this->host, $this->user, $this->passwd, $this->dbname);
             $this->connect->set_charset("utf8");
             $this->connect->query("USE " . $this->dbname);
@@ -56,7 +52,7 @@ class MysqlClient
         return $this->perform($from, $field, new SqlWhere("t.{$field}", 'in', $ids));
     }
 
-    private function perform($from, $key, SqlWhere $where = null, $order = "") {
+    private function perform($from, $key, SqlWhere $where = null, $order = "", $group = "") {
 
         $sql = "select {$from}";
         if ($where) {
@@ -66,15 +62,12 @@ class MysqlClient
         if ($order) {
             $sql .= " ORDER BY {$order}";
         }
-        if ($this->logQueries) {
-            error_log($sql);
-        }
-        $conect = $this->getConnect();
-        $result = $conect->query($sql);
 
-        if ($conect->error) {
-            throw new \Exception('mysql error ' . $conect->error . "\nat query " . $sql);
+        if ($group) {
+            $sql .= " GROUP BY {$group}";
         }
+
+        $result = $this->performQuery($sql);
         if (!$result) {
             return false;
         }
@@ -89,10 +82,10 @@ class MysqlClient
         return $out;
     }
 
-    public function getAll($table, SqlWhere $where = null, $fields = "*", $order = "") {
+    public function getAll($table, SqlWhere $where = null, $fields = "*", $order = "", $group = "") {
         $from = $fields . " FROM {$table}";
 
-        return $this->perform($from, 'id', $where, $order);
+        return $this->perform($from, 'id', $where, $order, $group);
     }
 
     public function update($table, int $id, array $set) {
@@ -106,11 +99,34 @@ class MysqlClient
             $params[] = "{$key}='$value'";
         }
         $sql = "update {$table} set " . implode(', ', $params) . " WHERE " . $where->toString($this->getConnect());
+        $this->performQuery($sql);
+    }
 
+    public function insert($table, $set) {
+        $params = [];
+        foreach ($set as $value) {
+            $params[] = "'$value'";
+        }
+        $sql = "insert into {$table} (" . implode(",", array_keys($set)) . ") VALUES (" . implode(",", $params) . ")";
+
+        $this->performQuery($sql);
+    }
+
+    private function performQuery($sql) {
+        $conect = $this->getConnect();
+        $this->log($sql);
+        $result = $conect->query($sql);
+
+        if ($result === false) {
+            throw new \Exception('mysql error ' . $conect->error . "\nat query " . $sql);
+        }
+
+        return $result;
+    }
+
+    private function log($sql) {
         if ($this->logQueries) {
             error_log($sql);
         }
-
-        $this->getConnect()->query($sql);
     }
 }

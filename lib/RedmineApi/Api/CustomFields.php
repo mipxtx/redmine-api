@@ -50,13 +50,35 @@ class CustomFields extends Base
         return $out;
     }
 
-    public function update(array $issueIds, $fieldId, $value) {
+    public function getValue($id, $fieldId) {
+        $rr = $this->getValues([$id], $fieldId);
+        $rr = array_pop($rr);
 
-        $cond = SqlWhere::_new('customized_type', '=','Issue')
+        return $rr['value'];
+    }
+
+    public function update(array $issueIds, $fieldId, $value) {
+        $cond = SqlWhere::_new('customized_type', '=', 'Issue')
             ->_and('customized_id', 'in', $issueIds)
             ->_and('custom_field_id', '=', $fieldId);
 
-        $this->getAccellerator()->updateByCondition('custom_values', $cond , ['value' => $value]);
+        $issues = $this->getAccellerator()->getAll('custom_values', $cond);
+
+        if (count($issues) != count($issueIds)) {
+            $existed = [];
+            foreach ($issues as $isseValue) {
+                $existed[] = $isseValue['customized_id'];
+            }
+            foreach (array_diff($issueIds, $existed) as $id) {
+                $new = [
+                    'customized_type' => 'Issue',
+                    'customized_id' => $id,
+                    'custom_field_id' => $fieldId,
+                ];
+                $this->getAccellerator()->insert('custom_values', $new);
+            }
+        }
+        $this->getAccellerator()->updateByCondition('custom_values', $cond, ['value' => $value]);
     }
 }
 
