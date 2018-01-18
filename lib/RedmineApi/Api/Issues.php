@@ -87,4 +87,30 @@ class Issues extends Base
     public function updatePosition($id, $position) {
         $this->getAccellerator()->update('issues', $id, ['position' => (int)$position]);
     }
+
+    public function findWithChildren(array $ids) {
+        $out = [];
+        $items = $this->findByIds($ids);
+        $out[0] = $items;
+        $ids = [];
+        foreach ($items as $item) {
+            $ids[] = $item['id'];
+        }
+
+        do {
+            $ids = [];
+            foreach ($items as $item) {
+                $ids[] = $item['id'];
+                $parent = $item['parent_id'];
+                if(!isset($out[$parent])){
+                    $out[$parent] = [];
+                }
+                $out[$parent][] = $item;
+            }
+            $items = $this->findByConditions(SqlWhere::_new('parent_id', 'in', $ids));
+
+        } while (count($items) > 0);
+
+        return $out;
+    }
 }

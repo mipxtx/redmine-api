@@ -15,7 +15,7 @@ class Users extends Base
      * @param $id
      * @return null
      */
-    public function find($id) {
+    public function find(int $id) {
         $user = $this->request("GET", "/users/$id.json");
         if ($user["user"]) {
             return $user["user"];
