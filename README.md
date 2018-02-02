@@ -60,7 +60,14 @@ MySQL only
  * Emails
     * findByUserIds
     
- * CustomFields
+ * Custom Fields
     * getField - field possible values
     * getVBalues (by issueIds)
     * updateValues
+
+ * Trackers
+    * findByIds
+    
+ * Time Entries
+    * find 
+    * findForMonth

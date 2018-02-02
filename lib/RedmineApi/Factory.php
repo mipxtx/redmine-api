@@ -10,6 +10,8 @@ use RedmineApi\Api\CustomFields;
 use RedmineApi\Api\IssueRelations;
 use RedmineApi\Api\Issues;
 use RedmineApi\Api\Statuses;
+use RedmineApi\Api\TimeEntries;
+use RedmineApi\Api\Trackers;
 use RedmineApi\Api\Users;
 use RedmineApi\Sql\MysqlClient;
 
@@ -42,5 +44,13 @@ class Factory
 
     public function getCustomFields(){
         return new CustomFields($this->client, $this->acc);
+    }
+
+    public function getTimeEntries(){
+        return new TimeEntries($this->client, $this->acc);
+    }
+
+    public function getTrackers(){
+        return new Trackers($this->client, $this->acc);
     }
 } 

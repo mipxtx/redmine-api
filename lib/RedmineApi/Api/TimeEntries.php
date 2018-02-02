@@ -17,13 +17,20 @@ class TimeEntries extends Base
     public function find($userId, $start = null, $end = null) {
 
         $where = new SqlWhere('user_id', 'in', $userId);
-
         if ($start) {
             $where = $where->_and('spent_on', ">", $start);
         }
-
         if ($end) {
             $where = $where->_and('spent_on', ">", $end);
+        }
+        return $this->getAccellerator()->getAll(self::TABLE, $where);
+    }
+
+    public function findForMonth(int $year, int $month, $ids = []) {
+        $where = SqlWhere::_new('tmonth', '=', $month)->_and('tyear', '=', $year);
+
+        if ($ids) {
+            $where = $where->_and('user_id', 'in', $ids);
         }
 
         return $this->getAccellerator()->getAll(self::TABLE, $where);
