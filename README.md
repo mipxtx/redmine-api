@@ -41,6 +41,7 @@ Now implemented:
     * update issue
     * findByIds (mysql)
     * findByConditions (mysql select where/order)
+    * findRelations with issue statuses (mysql)
 
  * Issue Relations:
     * findFor (issue)

@@ -8,6 +8,7 @@
 
 namespace RedmineApi\Api;
 
+use RedmineApi\Sql\SqlParams;
 use RedmineApi\Sql\SqlWhere;
 
 class CustomFields extends Base
@@ -36,11 +37,14 @@ class CustomFields extends Base
     }
 
     public function getValues(array $issues, $fieldId, $order = "") {
+        $params = new SqlParams();
+        $params->setOrder($order);
+
         $result = $this->getAccellerator()->getAll(
             'custom_values',
             SqlWhere::_new('custom_field_id', '=', $fieldId)->_and('customized_id', 'in', $issues),
             'id, customized_id, value',
-            $order
+            $params
         );
         $out = [];
         foreach ($result as $row) {

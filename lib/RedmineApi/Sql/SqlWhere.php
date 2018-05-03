@@ -17,6 +17,8 @@ class SqlWhere
     private $operand2;
 
     private $priority = [
+        'is null' => 6,
+        'is not null' => 5,
         'in' => 4,
         '!' => 3,
         '=' => 2,
@@ -50,6 +52,9 @@ class SqlWhere
         switch (strtolower($this->operation)) {
             case "!" :
                 return $this->operation . $this->processValue($mysql, $this->operand1);
+            case "is null" :
+            case "is not null" :
+                return $this->operand1 . " " .$this->operation;
             default:
 
                 $pattern = "%s %s %s";

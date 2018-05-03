@@ -18,7 +18,7 @@ class MysqlClient
 
     private $connect;
 
-    private $logQueries = false;
+    private $logQueries = true;
 
     function __construct($host, $username, $passwd, $dbname) {
         $this->host = $host;
@@ -49,22 +49,25 @@ class MysqlClient
             $from = "* FROM {$table} as t";
         }
 
-        return $this->perform($from, $field, new SqlWhere("t.{$field}", 'in', $ids));
+        $params = new SqlParams();
+        $params->setKey($field);
+
+        return $this->perform($from, new SqlWhere("t.{$field}", 'in', $ids), $params);
     }
 
-    private function perform($from, $key, SqlWhere $where = null, $order = "", $group = "") {
+    private function perform($from, SqlWhere $where = null, SqlParams $params) {
 
         $sql = "select {$from}";
         if ($where) {
             $sql .= " WHERE " . $where->toString($this->getConnect());
         }
 
-        if ($order) {
-            $sql .= " ORDER BY {$order}";
+        if ($params->getOrder()) {
+            $sql .= " ORDER BY " . $params->getOrder();
         }
 
-        if ($group) {
-            $sql .= " GROUP BY {$group}";
+        if ($params->getGroupBy()) {
+            $sql .= " GROUP BY " . $params->getGroupBy();
         }
 
         $result = $this->performQuery($sql);
@@ -75,17 +78,26 @@ class MysqlClient
         $out = [];
         $rows = $result->fetch_all(MYSQLI_ASSOC);
 
+        $key = $params->getKey();
+
         foreach ($rows as $row) {
-            $out[$row[$key]] = $row;
+            if ($params->getResultMode() == SqlParams::MODE_REPLACE) {
+                $out[$row[$key]] = $row;
+            } else {
+                $out[$row[$key]][] = $row;
+            }
         }
 
         return $out;
     }
 
-    public function getAll($table, SqlWhere $where = null, $fields = "*", $order = "", $group = "") {
+    public function getAll($table, SqlWhere $where = null, $fields = "*", SqlParams $params = null) {
+        if (!$params) {
+            $params = new SqlParams();
+        }
         $from = $fields . " FROM {$table}";
 
-        return $this->perform($from, 'id', $where, $order, $group);
+        return $this->perform($from, $where, $params);
     }
 
     public function update($table, int $id, array $set) {
