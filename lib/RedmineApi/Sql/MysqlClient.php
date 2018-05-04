@@ -18,7 +18,7 @@ class MysqlClient
 
     private $connect;
 
-    private $logQueries = true;
+    private $logQueries = false;
 
     function __construct($host, $username, $passwd, $dbname) {
         $this->host = $host;
