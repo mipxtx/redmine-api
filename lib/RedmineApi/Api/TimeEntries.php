@@ -23,6 +23,7 @@ class TimeEntries extends Base
         if ($end) {
             $where = $where->_and('spent_on', ">", $end);
         }
+
         return $this->getAccellerator()->getAll(self::TABLE, $where);
     }
 
@@ -32,6 +33,15 @@ class TimeEntries extends Base
         if ($ids) {
             $where = $where->_and('user_id', 'in', $ids);
         }
+
+        return $this->getAccellerator()->getAll(self::TABLE, $where);
+    }
+
+    public function findForIssues(array $ids) {
+        if (!$ids) {
+            return [];
+        }
+        $where = new SqlWhere('issue_id', 'in', $ids);
 
         return $this->getAccellerator()->getAll(self::TABLE, $where);
     }
