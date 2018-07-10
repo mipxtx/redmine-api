@@ -58,12 +58,13 @@ class HttpClient
             if (php_sapi_name() != "cli") {
                 //echo "<pre>";
             }
-            echo(
-            strlen($str) > $this->debugStringLength
+
+            $str = strlen($str) > $this->debugStringLength
                 ? (mb_strcut($str, 0, $this->debugStringLength) . "...")
-                : $str
-            );
-            echo "\n";
+                : $str;
+            error_log($str);
+            echo($str . "\n");
+
             if (php_sapi_name() != "cli") {
                 //echo "</pre>";
             }
@@ -88,10 +89,17 @@ class HttpClient
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, $this->timeout * 1000000);
         $this->log("connecting to $requestUrl");
 
+        $msg = $method . " " . $requestUrl;
+
+        if ($data) {
+            $msg .= "\n" . $data;
+        }
+
+        $this->log('send: ' . $msg);
+
         if ($method != 'GET') {
             $data = json_encode($data);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            $this->log($data);
         }
 
         if ($method == 'POST') {
@@ -111,7 +119,7 @@ class HttpClient
             CURLOPT_HTTPHEADER,
             [
                 'Content-Type: application/json',
-                'X-Redmine-API-Key: ' . $this->key
+                'X-Redmine-API-Key: ' . $this->key,
             ]
         );
 
@@ -122,11 +130,11 @@ class HttpClient
         $body = curl_exec($ch);
         curl_close($ch);
 
-        $this->log($body);
-
+        $this->log('resp: ' . $body);
         $result = json_decode($body, 1);
+
         if (isset($result['error'])) {
-            throw new Exception($result['error']);
+            throw new \RuntimeException($result['error']);
         }
 
         return $result;
