@@ -136,6 +136,17 @@ class MysqlClient
         return $result;
     }
 
+    public function get($sql){
+        $result = $this->performQuery($sql);
+        if ($result instanceof  \mysqli_result) {
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+    }
+
+    public function escape($arg){
+        return $this->getConnect()->real_escape_string($arg);
+    }
+
     private function log($sql) {
         if ($this->logQueries) {
             error_log($sql);
