@@ -45,4 +45,12 @@ class TimeEntries extends Base
 
         return $this->getAccellerator()->getAll(self::TABLE, $where);
     }
+
+    public function findForUser($id, $from, $to) {
+        $where = (new SqlWhere('user_id', '=', $id))
+            ->_and('spent_on', '>=', $from)
+            ->_and('spent_on', '<=', $to);
+
+        return $this->getAccellerator()->getAll(self::TABLE, $where);
+    }
 }
