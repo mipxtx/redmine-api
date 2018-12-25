@@ -92,7 +92,7 @@ class HttpClient
         $msg = $method . " " . $requestUrl;
 
         if ($data) {
-            $msg .= "\n" . $data;
+            $msg .= "\n" . print_r($data,1);
         }
 
         $this->log('send: ' . $msg);
