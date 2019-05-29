@@ -124,7 +124,7 @@ class MysqlClient
         $this->performQuery($sql);
     }
 
-    private function performQuery($sql) {
+    public function performQuery($sql) {
         $conect = $this->getConnect();
         $this->log($sql);
         $result = $conect->query($sql);
